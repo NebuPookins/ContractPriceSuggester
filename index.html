@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Contract Price Suggester</title>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+<script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
+<script type="text/javascript">
+	$(function() {
+		var $currentRates = $('#currentRates');
+		var $averageRate = $('#averageRate');
+		var $radioButtons = $('input[name="howBad"]')
+		var $result = $('#result');
+		var $reset = $('#resetForm');
+		function calculateCharge() {
+			var averageRate = parseInt($averageRate.text(), 10);
+			if (averageRate == 0) {
+				averageRate = 25;
+			}
+			var chargedRate = averageRate;
+			var selected = $radioButtons.filter(':checked').val();
+			var funcTable = {};
+			funcTable[0] = function() { //need it
+				$result.text('You should charge ' + averageRate + ' or lower.');
+			};
+			funcTable[1] = function() { //meh...
+				$result.text('You should charge ' + Math.round(averageRate * 1.1) + '.');
+			};
+			funcTable[2] = function() { //nah...
+				$result.text('You should charge ' + Math.round(averageRate * 1.25) + '.');
+			};
+			funcTable[3] = function() { //nope!!!
+				$result.text('You should charge ' + Math.round(averageRate * 2.0) + '.');
+			};
+			funcTable['default'] = function () {
+				alert("You've found a bug in the program. Please report the bug to nebu@nebupookins.net.");
+			}
+			if (selected && funcTable[selected]) {
+				funcTable[selected]();
+			} else if (!selected) {
+				//Do nothing if no selection has been made.
+			} else {
+				console.log(selected);
+				funcTable['default']();
+			}
+		}
+		$currentRates.change(function() {
+			var strRates = $currentRates.val()
+			var arrStrRates = strRates.split(',').map(function(foo) { return $.trim(foo)})
+			var arrIntRates = arrStrRates.map(function(str) { return parseInt(str, 10)})
+			var sum = arrIntRates.reduce(function (a, b) { return a + b;}, 0);
+			var averageRate = Math.round(sum / arrIntRates.length);
+			$averageRate.text(averageRate);
+			calculateCharge();
+		});
+		$radioButtons.click(calculateCharge);
+		$reset.click(function() {
+			$currentRates.val('');
+			$radioButtons.each(function(index, element) { $(element).prop('checked', false); })
+			$result.text('You should charge...');
+		});
+	});
+</script>
+<link rel="stylesheet" href="bootstrap/css/bootstrap.min.css"
+	type="text/css" />
+<link rel="stylesheet" href="bootstrap/css/bootstrap-responsive.min.css"
+	type="text/css" />
+<style type="text/css">
+
+body {
+	zoom: 1.5;
+	max-width: 50em;
+	margin-left: auto;
+	margin-right: auto;
+}
+</style>
+</head>
+<body>
+	<div class="container-fluid">
+		<form class="form-horizontal">
+			<div class="control-group">
+				<label class="control-label" for="currentRates">Current Rates: </label>
+				<div class="controls">
+					<input type="text" id="currentRates" placeholder="E.g. 25, 25, 26, 27"/>
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="averageRate">Therefore, your average rate is: </label>
+				<div class="controls">
+					<span id="averageRate" class="input-small uneditable-input">0</span>
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="howBad">How badly do you want this next job?</label>
+				<div class="controls">
+					<label class="radio">
+						<input type="radio" name="howBad" value="0">
+						I <em>really</em> need this contract.
+					</label>
+					<label class="radio">
+						<input type="radio" name="howBad" value="1">
+						Could take it or leave it.
+					</label>
+					<label class="radio">
+						<input type="radio" name="howBad" value="2">
+						I don't really want to do this contract.
+					</label>
+					<label class="radio">
+						<input type="radio" name="howBad" value="3">
+						I <em>really</em> don't want to do this contract.
+					</label>
+				</div>
+			</div>
+			<a id="resetForm" class="btn btn-danger btn-mini pull-right">Reset</a>
+		</form>
+		<h1 id="result">You should charge...</h1>
+		<a href="#credits" role="button"
+			class="btn btn-info btn-mini pull-right" data-toggle="modal">Who
+			made this?!</a>
+		<div id="credits" class="modal hide fade" tabindex="-1" role="dialog"
+			aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"
+					aria-hidden="true">×</button>
+				<h3 id="myModalLabel">Credits</h3>
+			</div>
+			<div class="modal-body">
+				<p>Webapp programmed by Nebu Pookins.</p>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-primary" data-dismiss="modal">Got
+					it, thanks!</button>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
